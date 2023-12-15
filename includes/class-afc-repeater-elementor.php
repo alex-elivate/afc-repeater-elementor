@@ -182,8 +182,8 @@ class Afc_Repeater_Elementor {
 	 */
 	public function run() {
 		$this->loader->run();
+		add_shortcode('news-repeater', array($this, 'news_repeater_shortcode'));
 	}
-
 	/**
 	 * The name of the plugin used to uniquely identify it within the context of
 	 * WordPress and to define internationalization functionality.
@@ -215,4 +215,42 @@ class Afc_Repeater_Elementor {
 		return $this->version;
 	}
 
-}
+	/**
+ 	* Shortcode to display the repeater field
+ 	*
+ 	* @param array $atts
+ 	* @param null $content
+ 	* @param string $tag
+ 	* @return string
+ 	*/
+	public function news_repeater_shortcode($atts = array(), $content = null, $tag = '') {
+		$afc_repeater = 'news_entry'; // Name of the repeater field
+		$title = 'title'; 
+		$logo = 'logo';
+		$link = 'link';
+		$pageID = get_the_ID(); // not required if within loop, but doesn't hurt 
+
+		// Log the page ID
+		error_log("Page ID: $pageID");
+
+		$content = '';
+
+		while (have_rows($afc_repeater, $pageID)) {
+			the_row();
+			// Log the values of the sub fields
+			error_log("Logo: " . get_sub_field($logo));
+			error_log("Link: " . get_sub_field($link));
+			error_log("Title: " . get_sub_field($title));
+
+			// Sanitize the output
+			$content .= '<div class="news-item">';
+			$content .= '  <img class="news-logo" src="' . esc_url(get_sub_field($logo)) . '">';
+			$content .= '  <a class="news-link" href="' . esc_url(get_sub_field($link)) . '">' . esc_html(get_sub_field($title)) . '</a>'; 
+			$content .= '</div>';
+		}
+
+		// Log the final content
+		error_log("Content: $content");
+
+		return $content;
+	}}
