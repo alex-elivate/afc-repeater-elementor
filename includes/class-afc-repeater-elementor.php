@@ -224,17 +224,23 @@ class Afc_Repeater_Elementor {
  	* @return string
  	*/
 	public function news_repeater_shortcode($atts = array(), $content = null, $tag = '') {
-		// I wonder if there is a way to import HTML from Elementor and use it here
-		// I'm thinking of a way to make this more dynamic
-		// Perhaps if I pulled in HMTL as a string with variables
-		// and then used str_replace to replace the variables with the values from the repeater field.
-		// I would have to use the same variable names in the HTML as the repeater field
-		// and mark them with some kind of special character to make them unique. 
-		// Perhaps something like {{title}} or {{logo}} or {{link}}.
-		$afc_repeater = 'news_entry'; 
-		$title = 'title'; 
-		$logo = 'logo';
-		$link = 'link';
+		// Attributes.  The default is for this project.
+		if (isset($atts['html']))
+		{
+			$html = $atts['html'];
+		} else {
+			$html = '<div class="news-item">
+						<img class="news-logo" src="{{logo}}">
+						<a class="news-link" href="{{link}}">{{title}}</a>
+					</div>';
+		}
+		if (isset($atts['repeater']))
+		{
+			$afc_repeater = $atts['repeater'];
+		} else {
+			$afc_repeater = 'news_entry';
+		}
+
 		$pageID = get_the_ID(); 
 		error_log("Page ID: $pageID");
 
@@ -242,18 +248,22 @@ class Afc_Repeater_Elementor {
 
 		while (have_rows($afc_repeater, $pageID)) {
 			the_row();
-			
-			error_log("Logo: " . get_sub_field($logo));
-			error_log("Link: " . get_sub_field($link));
-			error_log("Title: " . get_sub_field($title));
 
-			$content .= '<div class="news-item">';
-			$content .= '  <img class="news-logo" src="' . esc_url(get_sub_field($logo)) . '">';
-			$content .= '  <a class="news-link" href="' . esc_url(get_sub_field($link)) . '">' . esc_html(get_sub_field($title)) . '</a>'; 
-			$content .= '</div>';
+			// Find all placeholders in the $html string
+			preg_match_all('/{{(.*?)}}/', $html, $matches);
+
+			// Loop over the placeholders and replace each one with the corresponding sub field
+			$replaced_html = $html;
+			foreach ($matches[1] as $match) {
+				$replaced_html = str_replace("{{{$match}}}", get_sub_field($match), $replaced_html);
+				error_log("Match: $match");
+			}
+
+			$content .= $replaced_html;
 		}
 
 		error_log("Content: $content");
 
 		return $content;
-	}}
+	}
+}
