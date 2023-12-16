@@ -21,3 +21,5 @@ each item.  You create shortcode that looks something like this:
     [/news-repeater]
 
 This feature is missing from Elementor so this was the quickest solution for me.
+I didn't make a package for this, so just download the code as a zip file and 
+install manually if you wish to try it.
