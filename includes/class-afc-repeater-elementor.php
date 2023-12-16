@@ -227,19 +227,17 @@ class Afc_Repeater_Elementor {
 		// Content.  The default is for this project only.
 		if ($content == null)
 		{
-			$content = '<div class="news-item">
-							<img class="news-logo" src="{{logo}}">
-							<a class="news-link" href="{{link}}">{{title}}</a>
-						</div>';
+			return '';
 		}
+		error_log("Content in: $content");
 		// only one attribute is required, the repeater name
 		if (isset($atts['repeater']))
 		{
 			$afc_repeater = $atts['repeater'];
 		} else {
-			$afc_repeater = 'news_entry';
+			return '';
 		}
-
+		error_log("Repeater: $afc_repeater");
 		$pageID = get_the_ID(); 
 		error_log("Page ID: $pageID");
 
@@ -247,21 +245,18 @@ class Afc_Repeater_Elementor {
 
 		while (have_rows($afc_repeater, $pageID)) {
 			the_row();
-
 			// Find all placeholders in the $html string
 			preg_match_all('/{{(.*?)}}/', $content, $matches);
-
 			// Loop over the placeholders and replace each one with the corresponding sub field
 			$replaced_html = $content;
 			foreach ($matches[1] as $match) {
 				$replaced_html = str_replace("{{{$match}}}", get_sub_field($match), $replaced_html);
-				error_log("Match: $match");
 			}
 
 			$contentOut .= $replaced_html;
 		}
 
-		error_log("Content: $contentOut");
+		error_log("Content out: $contentOut");
 
 		return $contentOut;
 	}
