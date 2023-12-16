@@ -224,16 +224,15 @@ class Afc_Repeater_Elementor {
  	* @return string
  	*/
 	public function news_repeater_shortcode($atts = array(), $content = null, $tag = '') {
-		// Attributes.  The default is for this project.
-		if (isset($atts['html']))
+		// Content.  The default is for this project only.
+		if ($content == null)
 		{
-			$html = $atts['html'];
-		} else {
-			$html = '<div class="news-item">
-						<img class="news-logo" src="{{logo}}">
-						<a class="news-link" href="{{link}}">{{title}}</a>
-					</div>';
+			$content = '<div class="news-item">
+							<img class="news-logo" src="{{logo}}">
+							<a class="news-link" href="{{link}}">{{title}}</a>
+						</div>';
 		}
+		// only one attribute is required, the repeater name
 		if (isset($atts['repeater']))
 		{
 			$afc_repeater = $atts['repeater'];
@@ -244,26 +243,26 @@ class Afc_Repeater_Elementor {
 		$pageID = get_the_ID(); 
 		error_log("Page ID: $pageID");
 
-		$content = '';
+		$contentOut = '';
 
 		while (have_rows($afc_repeater, $pageID)) {
 			the_row();
 
 			// Find all placeholders in the $html string
-			preg_match_all('/{{(.*?)}}/', $html, $matches);
+			preg_match_all('/{{(.*?)}}/', $content, $matches);
 
 			// Loop over the placeholders and replace each one with the corresponding sub field
-			$replaced_html = $html;
+			$replaced_html = $content;
 			foreach ($matches[1] as $match) {
 				$replaced_html = str_replace("{{{$match}}}", get_sub_field($match), $replaced_html);
 				error_log("Match: $match");
 			}
 
-			$content .= $replaced_html;
+			$contentOut .= $replaced_html;
 		}
 
-		error_log("Content: $content");
+		error_log("Content: $contentOut");
 
-		return $content;
+		return $contentOut;
 	}
 }
